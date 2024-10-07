@@ -6,11 +6,12 @@ const router = express.Router();
 
 // Utility function to handle date range queries
 const getDateRange = (month, year) => {
-  if (!year || isNaN(year)) {
-    throw new Error("Invalid or missing year");
-  }
+  if (!year || isNaN(year)) throw new Error('Invalid or missing year');
+  if (!month || isNaN(month) || month < 1 || month > 12) throw new Error('Invalid month provided');
+  
   const startDate = new Date(`${year}-${month}-01`);
-  const endDate = new Date(year, month, 0); // Get the last day of the month
+  const endDate = new Date(year, month, 0);
+  
   return { startDate, endDate };
 };
 
@@ -28,28 +29,36 @@ router.get('/seed', async (req, res) => {
 
 // List all transactions with search and pagination
 router.get('/', async (req, res) => {
-  const { page = 1, perPage = 10, search = '', month, year } = req.query;
+  const { page = 1, perPage = 10, search = '', month, year, reset } = req.query;
 
   try {
-    const availableYears = await Transaction.distinct('dateOfSale', {});
-    const fallbackYear = new Date(Math.min(...availableYears)).getFullYear(); // Get the earliest year from data
-    const selectedYear = year || fallbackYear;
+    const query = {};
+    let dateQuery = {};
 
-    const { startDate, endDate } = getDateRange(month, selectedYear);
+    // If reset is true, fetch all transactions without filters
+    if (reset) {
+      // Fetch all transactions without filters
+    } else {
+      // If month and year are provided, calculate the date range
+      if (month && year) {
+        const { startDate, endDate } = getDateRange(month, year);
+        dateQuery = { dateOfSale: { $gte: startDate, $lte: endDate } };
+      }
 
-    const query = {
-      $or: [
+      // Build search query with title, description, or price
+      const searchConditions = [
         { title: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } }
-      ],
-      dateOfSale: { $gte: startDate, $lte: endDate }
-    };
+      ];
 
-    const searchAsNumber = Number(search);
-    if (!isNaN(searchAsNumber)) {
-      query.$or.push({ price: searchAsNumber });
+      if (!isNaN(search)) {
+        searchConditions.push({ price: Number(search) });
+      }
+
+      query.$and = [dateQuery, { $or: searchConditions }];
     }
 
+    // Fetch paginated transactions
     const transactions = await Transaction.find(query)
       .skip((page - 1) * perPage)
       .limit(parseInt(perPage));
@@ -73,11 +82,7 @@ router.get('/statistics', async (req, res) => {
   const { month, year } = req.query;
 
   try {
-    const availableYears = await Transaction.distinct('dateOfSale', {});
-    const fallbackYear = new Date(Math.min(...availableYears)).getFullYear();
-    const selectedYear = year || fallbackYear;
-
-    const { startDate, endDate } = getDateRange(month, selectedYear);
+    const { startDate, endDate } = getDateRange(month, year);
 
     const [totalSales, totalSoldItems, totalNotSoldItems] = await Promise.all([
       Transaction.aggregate([
@@ -99,16 +104,12 @@ router.get('/statistics', async (req, res) => {
   }
 });
 
-// Get data for bar chart based on price ranges
+// Get bar chart data based on price ranges
 router.get('/bar-chart', async (req, res) => {
   const { month, year } = req.query;
 
   try {
-    const availableYears = await Transaction.distinct('dateOfSale', {});
-    const fallbackYear = new Date(Math.min(...availableYears)).getFullYear();
-    const selectedYear = year || fallbackYear;
-
-    const { startDate, endDate } = getDateRange(month, selectedYear);
+    const { startDate, endDate } = getDateRange(month, year);
 
     const barChartData = await Transaction.aggregate([
       { $match: { dateOfSale: { $gte: startDate, $lte: endDate } } },
@@ -129,22 +130,16 @@ router.get('/bar-chart', async (req, res) => {
   }
 });
 
-// Get data for pie chart by category
+// Get pie chart data by category
 router.get('/pie-chart', async (req, res) => {
   const { month, year } = req.query;
 
   try {
-    const availableYears = await Transaction.distinct('dateOfSale', {});
-    const fallbackYear = new Date(Math.min(...availableYears)).getFullYear();
-    const selectedYear = year || fallbackYear;
-
-    const { startDate, endDate } = getDateRange(month, selectedYear);
+    const { startDate, endDate } = getDateRange(month, year);
 
     const pieChartData = await Transaction.aggregate([
       { $match: { dateOfSale: { $gte: startDate, $lte: endDate } } },
-      {
-        $group: { _id: "$category", count: { $sum: 1 } }
-      }
+      { $group: { _id: "$category", count: { $sum: 1 } } }
     ]);
 
     res.json(pieChartData);
@@ -159,11 +154,7 @@ router.get('/combined', async (req, res) => {
   const { month, year } = req.query;
 
   try {
-    const availableYears = await Transaction.distinct('dateOfSale', {});
-    const fallbackYear = new Date(Math.min(...availableYears)).getFullYear();
-    const selectedYear = year || fallbackYear;
-
-    const { startDate, endDate } = getDateRange(month, selectedYear);
+    const { startDate, endDate } = getDateRange(month, year);
 
     const [totalSales, totalSoldItems, totalNotSoldItems, barChartData, pieChartData] = await Promise.all([
       Transaction.aggregate([
@@ -208,9 +199,8 @@ router.get('/:id', async (req, res) => {
 
   try {
     const transaction = await Transaction.findById(id.trim());
-    if (!transaction) {
-      return res.status(404).json({ error: 'Transaction not found' });
-    }
+    if (!transaction) return res.status(404).json({ error: 'Transaction not found' });
+    
     res.json(transaction);
   } catch (error) {
     console.error('Error fetching transaction:', error.message);

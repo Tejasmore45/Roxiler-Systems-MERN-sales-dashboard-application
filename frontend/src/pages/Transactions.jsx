@@ -3,7 +3,7 @@ import axios from 'axios';
 
 function TransactionList() {
   const [month, setMonth] = useState('3'); // Default to March
-  const [year, setYear] = useState('2021'); // Default year
+  const [year, setYear] = useState('2022'); // Default to 2021
   const [transactions, setTransactions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage] = useState(10); // Transactions per page
@@ -11,26 +11,32 @@ function TransactionList() {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showAll, setShowAll] = useState(false); // Toggle for "Show All" transactions
 
-  // Fetch transactions whenever month, year, page, or search changes
+  // Fetch transactions whenever month, year, page, search, or showAll changes
   useEffect(() => {
     fetchTransactions();
-  }, [month, year, currentPage, search]);
+  }, [month, year, currentPage, search, showAll]);
 
   const fetchTransactions = async () => {
     setLoading(true);
     setError(null);
+
     try {
-      // Fetch transactions from the API with search, month, year, and pagination
-      const response = await axios.get(`http://localhost:5000/api/transactions`, {
-        params: {
-          month, // Selected month
-          year, // Selected year
-          page: currentPage, // Current page for pagination
-          perPage, // Number of items per page
-          search: search || '' // Search query
-        }
-      });
+      // Prepare parameters for API call
+      const params = {
+        page: currentPage,
+        perPage,
+        search: search || '',
+      };
+
+      // Only add month and year to params if not showing all transactions
+      if (!showAll) {
+        params.month = month;
+        params.year = year;
+      }
+
+      const response = await axios.get(`http://localhost:5000/api/transactions`, { params });
       setTransactions(response.data.transactions);
       setTotalPages(response.data.totalPages);
       setLoading(false);
@@ -48,12 +54,24 @@ function TransactionList() {
 
   const handleMonthChange = (e) => {
     setMonth(e.target.value); // Update selected month
+    setShowAll(false); // Ensure we are not in "Show All" mode when a month is selected
     setCurrentPage(1); // Reset to first page on month change
   };
 
   const handleYearChange = (e) => {
     setYear(e.target.value); // Update selected year
+    setShowAll(false); // Ensure we are not in "Show All" mode when a year is selected
     setCurrentPage(1); // Reset to first page on year change
+  };
+
+  const handleShowAllTransactions = () => {
+    setShowAll(true); // Toggle to "Show All" mode
+    setCurrentPage(1); // Reset to first page when showing all transactions
+  };
+
+  const handleFilterByMonthYear = () => {
+    setShowAll(false); // Go back to filtering by month and year
+    setCurrentPage(1); // Reset to first page when switching back to filtered mode
   };
 
   return (
@@ -68,6 +86,7 @@ function TransactionList() {
           className="form-control"
           value={month}
           onChange={handleMonthChange}
+          disabled={showAll} // Disable when "Show All" mode is active
         >
           {Array.from({ length: 12 }, (_, index) => (
             <option key={index} value={index + 1}>
@@ -85,8 +104,8 @@ function TransactionList() {
           className="form-control"
           value={year}
           onChange={handleYearChange}
+          disabled={showAll} // Disable when "Show All" mode is active
         >
-          {/* You can generate the years dynamically or provide a static list */}
           {Array.from({ length: 5 }, (_, index) => (
             <option key={index} value={2021 + index}>
               {2021 + index}
@@ -106,6 +125,25 @@ function TransactionList() {
           onChange={handleSearch}
           placeholder="Search by title, description, or price"
         />
+      </div>
+
+      {/* Show All Transactions Button */}
+      <div className="form-group">
+        {showAll ? (
+          <button
+            className="btn btn-secondary"
+            onClick={handleFilterByMonthYear} // Button to return to month/year filtering
+          >
+            Filter by Month/Year
+          </button>
+        ) : (
+          <button
+            className="btn btn-primary"
+            onClick={handleShowAllTransactions}
+          >
+            Show All Transactions
+          </button>
+        )}
       </div>
 
       {/* Display transactions or loader */}
