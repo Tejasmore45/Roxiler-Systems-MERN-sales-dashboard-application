@@ -69,7 +69,7 @@ function Statistics() {
           onChange={e => setYear(e.target.value)}
         >
           {Array.from({ length: 5 }, (_, index) => (
-            <option key={2022 + index} value={2022 + index}>{2022 + index}</option>
+            <option key={2021 + index} value={2021 + index}>{2021 + index}</option>
           ))}
         </select>
       </div>
@@ -86,12 +86,11 @@ function Statistics() {
           <p>Total Sold Items: {stats.totalSoldItems}</p>
           <p>Total Not Sold Items: {stats.totalNotSoldItems}</p>
 
-          <h3 className="my-4">Bar Chart - Transactions by Price Range</h3>
+          
           <div className="chart-container">
             <BarChart data={barData} />
           </div>
 
-          <h3 className="my-4">Pie Chart - Transactions by Category</h3>
           <div className="chart-container">
             <PieChart data={pieData} />
           </div>

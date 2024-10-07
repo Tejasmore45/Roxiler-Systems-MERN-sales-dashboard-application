@@ -39,7 +39,7 @@ const PieChart = ({ data }) => {
 
   return (
     <div style={{ height: '400px', width: '100%' }}>
-      <h4 className="text-center">Transactions by Category</h4> {/* Chart Title */}
+      <h4 className="text-center mt-2">Transactions by Category</h4> {/* Chart Title */}
       <Pie data={chartData} options={options} />
     </div>
   );
