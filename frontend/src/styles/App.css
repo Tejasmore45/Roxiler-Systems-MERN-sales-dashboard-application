@@ -1,0 +1,90 @@
+/* src/App.css */
+
+/* General body styles */
+body {
+    font-family: 'Arial', sans-serif; /* Clean sans-serif font */
+    background-color: #f8f9fa; /* Light background color */
+    color: #333; /* Dark text color */
+    margin: 0; /* Remove default margin */
+    padding: 20px; /* Padding around the body */
+}
+
+/* CSS Variables for easier theme management */
+:root {
+    --primary-color: #007bff;
+    --primary-hover: #0056b3;
+    --bg-color: #f8f9fa;
+    --text-color: #333;
+}
+
+/* Container styles */
+.container {
+    max-width: 1200px; /* Max width for the container */
+    margin: auto; /* Center the container */
+    padding: 20px; /* Padding inside the container */
+    background: #fff; /* White background for the container */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Form styles */
+.form-group {
+    margin-bottom: 20px; /* Space between form groups */
+}
+
+.form-control {
+    padding: 10px; /* Padding inside input fields */
+    border: 1px solid #ced4da; /* Border for input fields */
+    border-radius: 4px; /* Rounded corners */
+    width: 100%; /* Full width */
+}
+
+/* Button styles */
+.btn {
+    padding: 10px 15px; /* Padding for buttons */
+    border: none; /* Remove default border */
+    border-radius: 4px; /* Rounded corners */
+    color: white; /* Text color */
+    background-color: var(--primary-color); /* Use primary color variable */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.btn:hover {
+    background-color: var(--primary-hover); /* Darker shade on hover */
+}
+
+/* Chart container */
+.chart-container {
+    margin: 20px 0; /* Margin for chart containers */
+}
+
+/* Alert styles */
+.alert {
+    padding: 10px; /* Padding for alert messages */
+    border-radius: 4px; /* Rounded corners */
+}
+
+/* Spinner styles */
+.spinner-border {
+    display: block; /* Center the spinner */
+    margin: 20px auto; /* Margin for centering */
+}
+
+/* Additional styles for responsiveness */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px; /* Less padding on smaller screens */
+    }
+
+    .form-group {
+        margin-bottom: 15px; /* Reduce margin on smaller screens */
+    }
+}
+
+/* Accessibility: Focus styles */
+.btn:focus, .form-control:focus {
+    outline: none; /* Remove default outline */
+    border-color: var(--primary-color); /* Highlight border on focus */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Subtle shadow for focus */
+}

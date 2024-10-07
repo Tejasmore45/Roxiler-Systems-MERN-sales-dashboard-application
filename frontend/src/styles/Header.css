@@ -1,0 +1,29 @@
+.header {
+    background-color: #f8f9fa;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .header-title {
+    margin: 0;
+  }
+  
+  .header-nav ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .header-nav ul li {
+    display: inline;
+    margin: 0 15px;
+  }
+  
+  .header-nav ul li a {
+    text-decoration: none;
+    color: #007bff;
+  }
+  
+  .header-nav ul li a:hover {
+    text-decoration: underline;
+  }
+  

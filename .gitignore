@@ -1,0 +1,31 @@
+# Node modules
+backend/node_modules/
+frontend/node_modules/
+
+# Build directories
+/frontend/build/
+/backend/build/
+
+# Environment variable files
+.env
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+coverage/
+
+# Optional: Ignore IDE specific files (like VSCode, WebStorm, etc.)
+.vscode/
+.idea/
+*.iml
+
+# Package lock files (if you prefer to use npm instead of yarn)
+backend/package-lock.json
+frontend/package-lock.json

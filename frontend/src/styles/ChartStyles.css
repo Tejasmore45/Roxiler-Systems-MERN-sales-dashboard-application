@@ -1,0 +1,27 @@
+/* src/styles/ChartStyles.css */
+
+.chart-container {
+  display: flex;
+  justify-content: center; /* Center the charts horizontally */
+  margin: 20px 0; /* Add vertical margin */
+}
+
+/* Style for chart titles */
+.chart-title {
+  text-align: center; /* Center titles above charts */
+  margin-bottom: 10px; /* Space below titles */
+  font-weight: bold; /* Make titles bold */
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .chart-container {
+      flex-direction: column; /* Stack charts vertically on smaller screens */
+      align-items: center; /* Center items in the stack */
+  }
+  
+  /* Optional: Adjust margins for smaller screens */
+  .chart-container {
+      margin: 15px 0; /* Reduce margin on smaller screens */
+  }
+}
