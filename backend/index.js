@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const axios = require('axios');
+const Transaction = require('./models/Transaction'); // Import your Transaction model
 
 dotenv.config();
 
@@ -25,10 +27,36 @@ app.get('/', (req, res) => {
 const transactionRoutes = require('./routes/transactionRoutes');
 app.use('/api/transactions', transactionRoutes);
 
+// Automatic Seeding Function
+const seedDatabase = async () => {
+  try {
+    const transactionCount = await Transaction.countDocuments();
+    
+    // Seed only if the database is empty
+    if (transactionCount === 0) {
+      console.log('No transactions found. Seeding database...');
+      
+      // Fetch data from API
+      const { data: transactions } = await axios.get('https://s3.amazonaws.com/roxiler.com/product_transaction.json');
+      
+      // Insert transactions into the database
+      await Transaction.insertMany(transactions, { ordered: false });
+      console.log('Database seeded successfully!');
+    } else {
+      console.log('Database already contains transactions. Skipping seeding.');
+    }
+  } catch (error) {
+    console.error('Error during seeding:', error.message);
+  }
+};
+
 // MongoDB connection
 mongoose.connect(MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log('MongoDB connected');
+
+    // Automatically seed the database if it's empty
+    await seedDatabase();
 
     // Start server after successful DB connection
     app.listen(PORT, () => {
